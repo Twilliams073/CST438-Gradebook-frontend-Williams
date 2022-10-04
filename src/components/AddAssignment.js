@@ -21,6 +21,37 @@ class AddAssignment extends React.Component {
      this.setState({[event.target.name]: event.target.value});
   }
 
+  handleSubmit = ( ) => {
+    console.log("AddAssignment.handleSubmit");
+    const token = Cookies.get('XSRF-TOKEN');
+    
+    fetch(`${SERVER_URL}/assignment` , 
+        {  
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json',
+                     'X-XSRF-TOKEN': token }, 
+          body: JSON.stringify({assignmentName: this.state.assignmentname,  dueDate: this.state.duedate, courseId: this.state.coursename})
+        } )
+    .then(res => {
+        if (res.ok) {
+          toast.success("Grades successfully updated", {
+          position: toast.POSITION.BOTTOM_LEFT
+          });
+          this.fetchGrades();
+        } else {
+          toast.error("Grade updated failed", {
+          position: toast.POSITION.BOTTOM_LEFT
+          });
+          console.error('Put http status =' + res.status);
+    }})
+    .catch(err => {
+      toast.error("Grade updated failed", {
+        position: toast.POSITION.BOTTOM_LEFT
+      });
+      console.error(err);
+    });
+  };
+
   render() {
       return(
         <div className="App" >
@@ -33,7 +64,7 @@ class AddAssignment extends React.Component {
 	  <TextField autoFocus style = {{width:200}} label="Course Name" name="coursename" 
                 onChange={this.handleChange} value={this.state.coursename} />
 	  <br/>
-	  <Button id="Submit" variant="outlined" color="primary" style={{margin: 10}}  >
+	  <Button id="Submit" variant="outlined" color="primary" style={{margin: 10}} onClick={this.handleSubmit} >
              Submit
           </Button>
         </div>
